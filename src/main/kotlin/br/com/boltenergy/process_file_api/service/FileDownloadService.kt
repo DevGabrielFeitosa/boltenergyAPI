@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 @Service
 class FileDownloadService(
     @Value("\${file.download.url}") private val downloadUrl: String,
+    @Value("\${file.download.active}") private val jobActive: Boolean,
     @Value("\${file.download.directory}") private val downloadDirectory: String,
     private val csvProcessingService: CsvProcessingService
 ) {
@@ -29,6 +30,11 @@ class FileDownloadService(
 
     @Scheduled(cron = "\${file.download.cron}")
     fun downloadFile() {
+
+        if(!jobActive){
+            logger.info("Job desativado. Ignorando execução até ser ativo.")
+            return
+        }
 
         if (jobInUse){
             logger.info("Job já em execução. Saltando execução atual...")
