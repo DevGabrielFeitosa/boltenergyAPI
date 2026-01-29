@@ -9,7 +9,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
+import java.nio.charset.Charset
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -38,7 +38,7 @@ class CsvProcessingService(
         val batch = mutableListOf<PowerPlant>()
 
         try {
-            BufferedReader(InputStreamReader(FileInputStream(file), StandardCharsets.UTF_8)).use { reader ->
+            BufferedReader(InputStreamReader(FileInputStream(file), Charset.forName("ISO-8859-1"))).use { reader ->
                 val header = reader.readLine()
                 if (header == null) {
                     logger.error("Arquivo vazio ou sem cabeçalho")
