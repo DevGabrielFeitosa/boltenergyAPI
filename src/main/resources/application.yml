@@ -3,19 +3,26 @@ spring:
     name: process-file-api
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/boltenergy
+    url: jdbc:postgresql://localhost:5433/boltenergy?characterEncoding=UTF-8&useUnicode=true
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-init-sql: "SET NAMES 'UTF8'"
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 5000
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
 
 file:
   download:
