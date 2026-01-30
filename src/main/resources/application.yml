@@ -26,7 +26,7 @@ spring:
 
 file:
   download:
-    active: true
+    active: false
     url: https://dadosabertos.aneel.gov.br/dataset/57e4b8b5-a5db-40e6-9901-27ca629d0477/resource/4a615df8-4c25-48fa-bbea-873a36a79518/download/ralie-usina.csv
     directory: ./downloads
     cron: "*/30 * * * * *"
