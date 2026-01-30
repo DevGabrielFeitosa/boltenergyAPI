@@ -1,5 +1,6 @@
 package br.com.boltenergy.process_file_api.service
 
+import br.com.boltenergy.process_file_api.dto.PagedResponse
 import br.com.boltenergy.process_file_api.dto.TopGeneratorResponse
 import br.com.boltenergy.process_file_api.dto.TopGeneratorsListResponse
 import br.com.boltenergy.process_file_api.repository.PowerPlantRepository
@@ -47,6 +48,54 @@ class PowerPlantService(
             titulo = "Top $limit Maiores Geradores de Energia do Brasil",
             totalRegistros = generatorsList.size,
             geradores = generatorsList
+        )
+    }
+
+    fun getAllGeneratorsPaged(
+        page: Int,
+        size: Int,
+        sortBy: String,
+        sortDirection: String,
+        search: String?
+    ): PagedResponse<TopGeneratorResponse> {
+        logger.info("GetAllGeneratorsPaged - page: $page, size: $size, sortBy: $sortBy, direction: $sortDirection, search: $search")
+
+        val direction = if (sortDirection.uppercase() == "ASC") Sort.Direction.ASC else Sort.Direction.DESC
+        val pageable = PageRequest.of(page, size, Sort.by(direction, sortBy))
+
+        val pageResult = if (search.isNullOrBlank()) {
+            powerPlantRepository.findAllWithPowerGreaterThanZero(pageable)
+        } else {
+            powerPlantRepository.findAllWithSearch(search, pageable)
+        }
+
+        val generators = pageResult.content.mapIndexed { index, powerPlant ->
+            TopGeneratorResponse(
+                ranking = (page * size) + index + 1,
+                id = powerPlant.id,
+                dataGeracaoConjuntoDeDados = powerPlant.dataGeracaoConjuntoDeDados,
+                ideNucleoCEG = powerPlant.ideNucleoCEG?.toInt(),
+                codCEG = powerPlant.codCEG,
+                sigUFPrincipal = powerPlant.sigUFPrincipal,
+                dscOrigemCombustivel = powerPlant.dscOrigemCombustivel,
+                sigTipoGeracao = powerPlant.sigTipoGeracao,
+                nomEmpreendimento = powerPlant.nomEmpreendimento,
+                mdaPotenciaOutorgadaKw = powerPlant.mdaPotenciaOutorgadaKw,
+                dscPropriRegimePariticipacao = powerPlant.dscPropriRegimePariticipacao,
+                dscViabilidade = powerPlant.dscViabilidade,
+                dscSituacaoObra = powerPlant.dscSituacaoObra,
+                dscJustificativaPrevisao = powerPlant.dscJustificativaPrevisao,
+            )
+        }
+
+        return PagedResponse(
+            content = generators,
+            totalElements = pageResult.totalElements,
+            totalPages = pageResult.totalPages,
+            currentPage = pageResult.number,
+            pageSize = pageResult.size,
+            hasNext = pageResult.hasNext(),
+            hasPrevious = pageResult.hasPrevious()
         )
     }
 }
